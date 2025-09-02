@@ -23,9 +23,11 @@
         }
         .microphone-icon {
             position: absolute;
-            top: 1rem;
-            right: 1rem;
+            top: 1.1rem;
+            left: 1rem;
             color: #4b5563;
+            cursor: pointer;
+            transition: color 0.2s;
         }
         .language-picker {
             position: relative;
@@ -105,16 +107,16 @@
             <div class="flex flex-col text-area-container">
                 <textarea id="source-text" rows="10" class="w-full p-4 bg-gray-900 border border-gray-700 rounded-xl text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none" placeholder="أدخل النص هنا..."></textarea>
                 <!-- أيقونة الميكروفون -->
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 absolute top-4 left-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a4 4 0 11-8 0 4 4 0 018 0z" />
+                <svg id="source-mic-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 microphone-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2A4 4 0 008 6v4a4 4 0 008 0V6a4 4 0 00-4-4zM7 11v1a5 5 0 005 5h.1A5 5 0 0017 12v-1h2v1a7 7 0 01-7 7v4h-2v-4a7 7 0 01-7-7v-1h2z"/>
                 </svg>
             </div>
 
             <div class="flex flex-col text-area-container">
                 <textarea id="target-text" rows="10" class="w-full p-4 bg-gray-900 border border-gray-700 rounded-xl text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none" placeholder="النص المترجم سيظهر هنا..." readonly></textarea>
                 <!-- أيقونة الميكروفون -->
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 absolute top-4 left-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a4 4 0 11-8 0 4 4 0 018 0z" />
+                <svg id="target-mic-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 microphone-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2A4 4 0 008 6v4a4 4 0 008 0V6a4 4 0 00-4-4zM7 11v1a5 5 0 005 5h.1A5 5 0 0017 12v-1h2v1a7 7 0 01-7 7v4h-2v-4a7 7 0 01-7-7v-1h2z"/>
                 </svg>
             </div>
         </div>
@@ -168,6 +170,64 @@
             const translateBtn = document.getElementById('translate-btn');
             const swapBtn = document.getElementById('swap-btn');
             const loadingIndicator = document.getElementById('loading-indicator');
+            const sourceMicIcon = document.getElementById('source-mic-icon');
+            const targetMicIcon = document.getElementById('target-mic-icon');
+            
+            // Check for Web Speech API support
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                showMessage('متصفحك لا يدعم الإملاء الصوتي.', 'error');
+                sourceMicIcon.style.display = 'none';
+                targetMicIcon.style.display = 'none';
+            }
+
+            let recognition = null;
+
+            // دالة لبدء التعرف على الكلام
+            const startSpeechRecognition = (textArea, languageCode, icon) => {
+                if (recognition) {
+                    recognition.stop();
+                }
+
+                recognition = new SpeechRecognition();
+                recognition.lang = languageCode;
+                recognition.interimResults = false;
+                recognition.maxAlternatives = 1;
+
+                icon.style.color = '#34d399'; // تغيير لون الأيقونة إلى الأخضر للإشارة إلى الاستماع
+
+                recognition.onresult = (event) => {
+                    const speechResult = event.results[0][0].transcript;
+                    textArea.value = speechResult;
+                    icon.style.color = '#4b5563'; // إعادة اللون الأصلي
+                    recognition = null;
+                };
+
+                recognition.onerror = (event) => {
+                    console.error('خطأ في الإملاء الصوتي:', event.error);
+                    showMessage(`خطأ في الإملاء الصوتي: ${event.error}`, 'error');
+                    icon.style.color = '#4b5563'; // إعادة اللون الأصلي
+                    recognition = null;
+                };
+
+                recognition.onend = () => {
+                    icon.style.color = '#4b5563'; // إعادة اللون الأصلي عند الانتهاء
+                    recognition = null;
+                };
+
+                recognition.start();
+            };
+
+            // إضافة مستمعي الأحداث لأيقونات الميكروفون
+            sourceMicIcon.addEventListener('click', () => {
+                const langCode = sourceLangValue.value;
+                startSpeechRecognition(sourceText, langCode, sourceMicIcon);
+            });
+
+            targetMicIcon.addEventListener('click', () => {
+                const langCode = targetLangValue.value;
+                startSpeechRecognition(targetText, langCode, targetMicIcon);
+            });
 
             // قائمة اللغات المدعومة
             const languages = [
