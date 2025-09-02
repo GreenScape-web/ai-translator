@@ -13,15 +13,26 @@
             font-family: 'Inter', sans-serif;
             background-color: #0d1117;
             color: #c9d1d9;
-            direction: rtl; /* اتجاه النص من اليمين إلى اليسار */
+            direction: rtl;
         }
         .text-area-container {
             position: relative;
         }
         .text-area-container textarea {
-            padding-right: 2.5rem; /* مساحة لأيقونة الميكروفون */
+            padding-right: 2.5rem;
+            /* إضافة بعض الظل والتحسينات للمظهر */
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            border-radius: 1rem;
         }
         .microphone-icon {
+            position: absolute;
+            top: 1.1rem;
+            left: 1rem;
+            color: #4b5563;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .speaker-icon {
             position: absolute;
             top: 1.1rem;
             left: 1rem;
@@ -47,7 +58,7 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         .language-dropdown input {
-            direction: ltr; /* اتجاه النص من اليسار إلى اليمين في مربع البحث */
+            direction: ltr;
         }
         .language-item {
             padding: 0.75rem 1rem;
@@ -59,80 +70,101 @@
         }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-4">
-    <div class="w-full max-w-4xl p-8 bg-gray-800 rounded-2xl shadow-lg border border-gray-700">
-        <h1 class="text-3xl sm:text-4xl font-bold text-center mb-6 text-indigo-400">مترجم اللغات</h1>
-        <p class="text-center text-gray-400 mb-8">قم بالترجمة بين اللغات بسرعة ودقة.</p>
+<body class="flex flex-col min-h-screen">
+    <!-- Header Section -->
+    <header class="bg-gray-900 py-4 px-8 border-b border-gray-700">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-xl sm:text-2xl font-bold text-indigo-400">مترجمك الخاص</h1>
+            <nav>
+                <a href="#" class="text-gray-400 hover:text-indigo-400 transition-colors duration-200 text-sm sm:text-base">الرئيسية</a>
+            </nav>
+        </div>
+    </header>
 
-        <div class="flex items-center justify-center mb-4 gap-2">
-            <!-- Source Language Picker -->
-            <div id="source-lang-picker" class="relative w-1/2 language-picker">
-                <button id="source-lang-btn" class="w-full px-4 py-2 bg-gray-700 rounded-md text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 flex justify-between items-center text-sm">
-                    <span id="source-lang-name">العربية</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+    <!-- Main Content Area -->
+    <main class="flex-grow flex items-center justify-center p-4">
+        <div class="w-full max-w-5xl p-6 md:p-12 bg-gray-800 rounded-3xl shadow-2xl border border-gray-700">
+            <h2 class="text-2xl sm:text-3xl font-bold text-center mb-4 text-indigo-400">ابدأ الترجمة الآن</h2>
+            <p class="text-center text-gray-400 mb-8 max-w-xl mx-auto">ترجم أي نص بسرعة وسهولة بين أكثر من 50 لغة.</p>
+
+            <!-- Language and Swap Section -->
+            <div class="flex items-center justify-center mb-6 gap-2">
+                <!-- Source Language Picker -->
+                <div id="source-lang-picker" class="relative w-1/2 language-picker">
+                    <button id="source-lang-btn" class="w-full px-4 py-3 bg-gray-700 rounded-xl text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 flex justify-between items-center text-sm sm:text-base transition-colors duration-200 hover:bg-gray-600">
+                        <span id="source-lang-name">العربية</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5 transform rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+                    <div id="source-lang-dropdown" class="language-dropdown hidden">
+                        <input type="text" id="source-lang-search" placeholder="البحث عن لغة..." class="w-full px-4 py-2 bg-gray-900 border-b border-gray-700 rounded-t-xl text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        <div id="source-lang-list"></div>
+                    </div>
+                    <input type="hidden" id="source-lang-value" value="ar">
+                </div>
+
+                <!-- Swap Button -->
+                <button id="swap-btn" class="p-3 bg-gray-700 rounded-full hover:bg-gray-600 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 transform hover:scale-110">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                     </svg>
                 </button>
-                <div id="source-lang-dropdown" class="language-dropdown hidden">
-                    <input type="text" id="source-lang-search" placeholder="البحث عن لغة..." class="w-full px-4 py-2 bg-gray-900 border-b border-gray-700 rounded-t-md text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                    <div id="source-lang-list"></div>
+
+                <!-- Target Language Picker -->
+                <div id="target-lang-picker" class="relative w-1/2 language-picker">
+                    <button id="target-lang-btn" class="w-full px-4 py-3 bg-gray-700 rounded-xl text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 flex justify-between items-center text-sm sm:text-base transition-colors duration-200 hover:bg-gray-600">
+                        <span id="target-lang-name">الإنجليزية</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5 transform rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+                    <div id="target-lang-dropdown" class="language-dropdown hidden">
+                        <input type="text" id="target-lang-search" placeholder="البحث عن لغة..." class="w-full px-4 py-2 bg-gray-900 border-b border-gray-700 rounded-t-xl text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        <div id="target-lang-list"></div>
+                    </div>
+                    <input type="hidden" id="target-lang-value" value="en">
                 </div>
-                <input type="hidden" id="source-lang-value" value="ar">
             </div>
 
-            <!-- Swap Button -->
-            <button id="swap-btn" class="p-2 bg-gray-700 rounded-full hover:bg-gray-600 transition duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                </svg>
-            </button>
-
-            <!-- Target Language Picker -->
-            <div id="target-lang-picker" class="relative w-1/2 language-picker">
-                <button id="target-lang-btn" class="w-full px-4 py-2 bg-gray-700 rounded-md text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 flex justify-between items-center text-sm">
-                    <span id="target-lang-name">الإنجليزية</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            <!-- Text Areas -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="flex flex-col text-area-container">
+                    <textarea id="source-text" rows="10" class="w-full p-4 bg-gray-900 border border-gray-700 rounded-xl text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none" placeholder="أدخل النص هنا..."></textarea>
+                    <!-- أيقونة الميكروفون -->
+                    <svg id="source-mic-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 microphone-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2A4 4 0 008 6v4a4 4 0 008 0V6a4 4 0 00-4-4zM7 11v1a5 5 0 005 5h.1A5 5 0 0017 12v-1h2v1a7 7 0 01-7 7v4h-2v-4a7 7 0 01-7-7v-1h2z"/>
                     </svg>
-                </button>
-                <div id="target-lang-dropdown" class="language-dropdown hidden">
-                    <input type="text" id="target-lang-search" placeholder="البحث عن لغة..." class="w-full px-4 py-2 bg-gray-900 border-b border-gray-700 rounded-t-md text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                    <div id="target-lang-list"></div>
                 </div>
-                <input type="hidden" id="target-lang-value" value="en">
-            </div>
-        </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="flex flex-col text-area-container">
-                <textarea id="source-text" rows="10" class="w-full p-4 bg-gray-900 border border-gray-700 rounded-xl text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none" placeholder="أدخل النص هنا..."></textarea>
-                <!-- أيقونة الميكروفون -->
-                <svg id="source-mic-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 microphone-icon" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2A4 4 0 008 6v4a4 4 0 008 0V6a4 4 0 00-4-4zM7 11v1a5 5 0 005 5h.1A5 5 0 0017 12v-1h2v1a7 7 0 01-7 7v4h-2v-4a7 7 0 01-7-7v-1h2z"/>
-                </svg>
+                <div class="flex flex-col text-area-container">
+                    <textarea id="target-text" rows="10" class="w-full p-4 bg-gray-900 border border-gray-700 rounded-xl text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none" placeholder="النص المترجم سيظهر هنا..." readonly></textarea>
+                    <!-- أيقونة مكبر الصوت -->
+                    <svg id="target-speaker-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 speaker-icon hidden" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.74 2.5-2.26 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.98 7-4.78 7-8.77s-2.99-7.79-7-8.77z"/>
+                    </svg>
+                </div>
             </div>
 
-            <div class="flex flex-col text-area-container">
-                <textarea id="target-text" rows="10" class="w-full p-4 bg-gray-900 border border-gray-700 rounded-xl text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none" placeholder="النص المترجم سيظهر هنا..." readonly></textarea>
-                <!-- أيقونة الميكروفون -->
-                <svg id="target-mic-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 microphone-icon" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2A4 4 0 008 6v4a4 4 0 008 0V6a4 4 0 00-4-4zM7 11v1a5 5 0 005 5h.1A5 5 0 0017 12v-1h2v1a7 7 0 01-7 7v4h-2v-4a7 7 0 01-7-7v-1h2z"/>
-                </svg>
+            <!-- Translate Button and Loading Indicator -->
+            <div class="flex flex-col sm:flex-row items-center justify-center mt-8 gap-4">
+                <button id="translate-btn" class="w-full sm:w-auto px-8 py-3 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-full shadow-lg transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-800">
+                    ترجم
+                </button>
+                <div id="loading-indicator" class="hidden flex items-center gap-2">
+                    <div class="h-6 w-6 border-4 border-t-4 border-indigo-400 border-solid rounded-full animate-spin"></div>
+                    <span class="text-gray-400">جارٍ الترجمة...</span>
+                </div>
             </div>
+            
+            <div id="message-box" class="mt-6 p-4 text-center rounded-lg hidden"></div>
         </div>
+    </main>
 
-        <div class="flex flex-col sm:flex-row items-center justify-center mt-8 gap-4">
-            <button id="translate-btn" class="w-full sm:w-auto px-8 py-3 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-full shadow-lg transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-800">
-                ترجم
-            </button>
-            <div id="loading-indicator" class="hidden flex items-center gap-2">
-                <div class="h-6 w-6 border-4 border-t-4 border-indigo-400 border-solid rounded-full animate-spin"></div>
-                <span class="text-gray-400">جارٍ الترجمة...</span>
-            </div>
-        </div>
-        
-        <div id="message-box" class="mt-6 p-4 text-center rounded-lg hidden"></div>
-    </div>
+    <!-- Footer Section -->
+    <footer class="bg-gray-900 py-4 px-8 border-t border-gray-700 text-center text-gray-500 text-sm">
+        <p>جميع الحقوق محفوظة © 2025</p>
+    </footer>
 
     <script>
         // دالة لعرض الرسائل في صندوق مخصص بدلاً من alert
@@ -171,14 +203,13 @@
             const swapBtn = document.getElementById('swap-btn');
             const loadingIndicator = document.getElementById('loading-indicator');
             const sourceMicIcon = document.getElementById('source-mic-icon');
-            const targetMicIcon = document.getElementById('target-mic-icon');
+            const targetSpeakerIcon = document.getElementById('target-speaker-icon');
             
             // Check for Web Speech API support
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!SpeechRecognition) {
                 showMessage('متصفحك لا يدعم الإملاء الصوتي.', 'error');
                 sourceMicIcon.style.display = 'none';
-                targetMicIcon.style.display = 'none';
             }
 
             let recognition = null;
@@ -222,11 +253,6 @@
             sourceMicIcon.addEventListener('click', () => {
                 const langCode = sourceLangValue.value;
                 startSpeechRecognition(sourceText, langCode, sourceMicIcon);
-            });
-
-            targetMicIcon.addEventListener('click', () => {
-                const langCode = targetLangValue.value;
-                startSpeechRecognition(targetText, langCode, targetMicIcon);
             });
 
             // قائمة اللغات المدعومة
@@ -418,6 +444,130 @@
                 sourceText.value = targetContent;
                 targetText.value = sourceContent;
             });
+            
+            // Function to convert base64 to ArrayBuffer
+            function base64ToArrayBuffer(base64) {
+                const binaryString = atob(base64);
+                const len = binaryString.length;
+                const bytes = new Uint8Array(len);
+                for (let i = 0; i < len; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
+                }
+                return bytes.buffer;
+            }
+
+            // Function to convert PCM audio data to a WAV file Blob
+            function pcmToWav(pcmData, sampleRate) {
+                const pcm16 = new Int16Array(pcmData);
+                const dataLength = pcm16.length * 2;
+                const buffer = new ArrayBuffer(44 + dataLength);
+                const view = new DataView(buffer);
+
+                // WAV header
+                const writeString = (str) => {
+                    for (let i = 0; i < str.length; i++) {
+                        view.setUint8(i, str.charCodeAt(i));
+                    }
+                };
+                writeString('RIFF');
+                view.setUint32(4, 36 + dataLength, true);
+                writeString('WAVE');
+                writeString('fmt ');
+                view.setUint32(16, 16, true);
+                view.setUint16(20, 1, true); // Mono channel
+                view.setUint16(22, 1, true); // Mono channel
+                view.setUint32(24, sampleRate, true);
+                view.setUint32(28, sampleRate * 2, true);
+                view.setUint16(32, 2, true);
+                view.setUint16(34, 16, true); // 16 bits per sample
+                writeString('data');
+                view.setUint32(40, dataLength, true);
+
+                // Write PCM data
+                let offset = 44;
+                for (let i = 0; i < pcm16.length; i++, offset += 2) {
+                    view.setInt16(offset, pcm16[i], true);
+                }
+                
+                return new Blob([view], { type: 'audio/wav' });
+            }
+
+            // دالة لتحويل النص إلى صوت
+            async function speakText() {
+                const textToSpeak = targetText.value.trim();
+                const targetLang = targetLangValue.value;
+
+                if (!textToSpeak) {
+                    showMessage('لا يوجد نص للاستماع إليه.', 'info');
+                    return;
+                }
+
+                // Show loading indicator
+                loadingIndicator.classList.remove('hidden');
+
+                try {
+                    const apiKey = "";
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
+
+                    const payload = {
+                        contents: [{ parts: [{ text: textToSpeak }] }],
+                        generationConfig: {
+                            responseModalities: ["AUDIO"],
+                            speechConfig: {
+                                voiceConfig: {
+                                    prebuiltVoiceConfig: { voiceName: "Artemis" }
+                                }
+                            }
+                        },
+                        model: "gemini-2.5-flash-preview-tts"
+                    };
+
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        console.error('TTS API call failed:', response.status, errorText);
+                        throw new Error(`خطأ في تحويل النص إلى صوت: ${response.status}.`);
+                    }
+
+                    const result = await response.json();
+                    const part = result?.candidates?.[0]?.content?.parts?.[0];
+                    const audioData = part?.inlineData?.data;
+                    const mimeType = part?.inlineData?.mimeType;
+
+                    if (audioData && mimeType && mimeType.startsWith("audio/")) {
+                        const sampleRateMatch = mimeType.match(/rate=(\d+)/);
+                        const sampleRate = sampleRateMatch ? parseInt(sampleRateMatch[1], 10) : 16000;
+                        
+                        const pcmData = base64ToArrayBuffer(audioData);
+                        const wavBlob = pcmToWav(pcmData, sampleRate);
+                        const audioUrl = URL.createObjectURL(wavBlob);
+                        
+                        const audio = new Audio(audioUrl);
+                        audio.play();
+                        
+                        showMessage('جارٍ تشغيل الصوت...', 'success');
+                    } else {
+                        throw new Error('لم يتم الحصول على بيانات صوتية صالحة.');
+                    }
+                } catch (error) {
+                    console.error('TTS failed:', error);
+                    showMessage(`حدث خطأ أثناء تشغيل الصوت: ${error.message}`, 'error');
+                } finally {
+                    loadingIndicator.classList.add('hidden');
+                }
+            }
+
+            // إضافة مستمعي الأحداث لأيقونات الميكروفون ومكبر الصوت
+            sourceMicIcon.addEventListener('click', () => {
+                const langCode = sourceLangValue.value;
+                startSpeechRecognition(sourceText, langCode, sourceMicIcon);
+            });
+            targetSpeakerIcon.addEventListener('click', speakText);
 
             // دالة ترجمة النص
             async function translateText() {
@@ -465,6 +615,7 @@
 
                     if (translatedText) {
                         targetText.value = translatedText;
+                        targetSpeakerIcon.classList.remove('hidden');
                         showMessage('تمت الترجمة بنجاح!', 'success');
                     } else {
                         throw new Error('لم يتم الحصول على ترجمة. حاول مرة أخرى.');
